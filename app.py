@@ -37,8 +37,8 @@ if uploaded_file:
         st.write(f"DEBUG: SVG starts with: {svg_markup[:100] if svg_markup else 'None'}")
         
         if svg_markup:
-            # Display using markdown with unsafe_allow_html
-            st.markdown(svg_markup, unsafe_allow_html=True)
+            # Use components for reliable SVG rendering
+            st.components.v1.html(svg_markup, height=750, scrolling=False)
             st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
         else:
             st.error("❌ Floor plan SVG is empty!")
