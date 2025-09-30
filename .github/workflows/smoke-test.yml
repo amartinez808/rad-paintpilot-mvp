@@ -1,0 +1,36 @@
+name: Smoke Test - Demo CLI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  demo-smoke:
+    name: Run demo CLI and produce Excel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir -r requirements.txt
+
+      - name: Run demo CLI (smoke)
+        run: |
+          mkdir -p output
+          python main.py --input data/sample_plans/office_2ndfloor.pdf --output output/bid_package_ci.xlsx
+
+      - name: Upload generated bid package
+        uses: actions/upload-artifact@v4
+        with:
+          name: bid_package
+          path: output/bid_package_ci.xlsx
