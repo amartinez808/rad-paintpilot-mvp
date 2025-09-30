@@ -1,9 +1,11 @@
+import re
+
 import streamlit as st
 import pandas as pd
 from src.pdf_processor import mock_room_extraction
 from src.calculator import process_takeoff
 from src.excel_exporter import generate_workbook
-from src.floor_visualizer import generate_floor_plan_svg
+from src.floor_visualizer import generate_floor_plan_svg, SVG_W
 
 st.set_page_config(page_title="RAD PaintPilot MVP", page_icon="🎨")
 st.title("🎨 RAD PaintPilot - Pro Plan Demo")
@@ -27,17 +29,36 @@ if uploaded_file:
     # --- Floor Plan Visualization ---
     st.subheader("📐 Floor Plan Preview")
     svg_markup = generate_floor_plan_svg(rooms_data)
-    # Wrap in a responsive container to avoid clipping on smaller screens
-    st.markdown(
-        f"""
-        <div style="max-width: 100%; overflow-x: auto; border-radius: 8px; padding: 12px; background: #ffffff; border: 1px solid #e0e0e0;">
-          <div style="min-width: 1500px; margin: 0 auto;">
+    fit_to_screen = st.toggle("Fit floor plan to screen", value=True)
+
+    if fit_to_screen:
+        responsive_svg = re.sub(r'width="[^"]+"', 'width="100%"', svg_markup, count=1)
+        responsive_svg = re.sub(r'height="[^"]+"', '', responsive_svg, count=1)
+        if 'preserveAspectRatio' not in responsive_svg:
+            responsive_svg = re.sub(r'<svg', '<svg preserveAspectRatio="xMidYMid meet"', responsive_svg, count=1)
+        responsive_svg = re.sub(
+            r'<svg([^>]*)>',
+            r'<svg\1 style="width:100%; height:auto; display:block; max-height:80vh;">',
+            responsive_svg,
+            count=1,
+        )
+        container_html = f"""
+        <div style="width: min(96vw, 1700px); margin: 0 auto; border-radius: 12px; padding: 20px; background: #ffffff; border: 1px solid #d5d5d5; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);">
+          <div style="display:flex; justify-content:center;">
+            {responsive_svg}
+          </div>
+        </div>
+        """
+    else:
+        container_html = f"""
+        <div style="max-width: 100%; overflow-x: auto; border-radius: 12px; padding: 16px; background: #ffffff; border: 1px solid #e0e0e0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);">
+          <div style="min-width: {SVG_W}px; margin: 0 auto; display:flex; justify-content:center;">
             {svg_markup}
           </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        """
+
+    st.markdown(container_html, unsafe_allow_html=True)
     st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
 
     # --- Room Breakdown Table ---

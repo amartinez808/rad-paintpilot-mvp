@@ -8,22 +8,22 @@ TEXT_COLOR     = "#222222"
 WALL_STROKE    = "#111111"
 
 # Canvas
-SVG_W, SVG_H = 1500, 880
-MARGIN = 24
+SVG_W, SVG_H = 2000, 1100
+MARGIN = 28
 
 # Reserved bands so title/legend never collide with rooms
 TITLE_BAND_PX   = 36                 # space along top for title
-LEGEND_PANEL_PX = 240                # reserved panel on right for legend
+LEGEND_PANEL_PX = 260                # reserved panel on right for legend
 
 # Layout behavior
-GAP_PX       = 18                    # fixed pixel gap between rooms
-ROW_WRAP_FT  = 120.0                 # wrap when row would exceed this width (in feet)
-SCALE_MIN    = 2.8                   # keep labels readable
-ROOM_MIN_WPX = 120                   # never render smaller than this
-ROOM_MIN_HPX = 90
+GAP_PX       = 20                    # fixed pixel gap between rooms
+ROW_WRAP_FT  = 150.0                 # wrap when row would exceed this width (in feet)
+SCALE_MIN    = 3.2                   # keep labels readable
+ROOM_MIN_WPX = 150                   # never render smaller than this
+ROOM_MIN_HPX = 110
 
-LABEL_MAIN_SIZE = 12
-LABEL_SUB_SIZE  = 11
+LABEL_MAIN_SIZE = 14
+LABEL_SUB_SIZE  = 12
 
 def _room_color(finish_type: str) -> str:
     return ROOM_FILL_WC if (finish_type or "").lower() == "wallcovering" else ROOM_FILL_PAINT
@@ -122,9 +122,12 @@ def generate_floor_plan_svg(rooms_data: Dict) -> str:
     origin_x = MARGIN
     origin_y = MARGIN + TITLE_BAND_PX
 
-    svg = [f'<svg width="{SVG_W}" height="{SVG_H}" viewBox="0 0 {SVG_W} {SVG_H}" '
-           f'style="max-width:none;" '
-           f'xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Floor plan preview">']
+    svg = [
+        f'<svg width="{SVG_W}" height="{SVG_H}" viewBox="0 0 {SVG_W} {SVG_H}" '
+        f'style="width:{SVG_W}px; height:auto; max-width:100%;" '
+        f'preserveAspectRatio="xMidYMid meet" '
+        f'xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Floor plan preview">'
+    ]
 
     # Outer frame
     svg.append(_svg_rect(MARGIN/2, MARGIN/2, SVG_W - MARGIN, SVG_H - MARGIN, "#ffffff", WALL_STROKE, 2, rx=8))
