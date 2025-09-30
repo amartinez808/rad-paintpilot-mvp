@@ -19,19 +19,25 @@ if uploaded_file:
         results = process_takeoff(rooms_data)
 
     st.success("✅ Analysis complete!")
+    
+    # Debug: show rooms_data structure
+    with st.expander("Debug: Room Data"):
+        st.json(rooms_data)
 
     # --- Floor Plan Visualization ---
     st.subheader("📐 Floor Plan Preview")
     try:
         svg_markup = generate_floor_plan_svg(rooms_data)
-        # Use components.html for better SVG rendering
-        st.components.v1.html(svg_markup, height=750, scrolling=False)
+        if svg_markup:
+            # Display using markdown with unsafe_allow_html
+            st.markdown(svg_markup, unsafe_allow_html=True)
+            st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
+        else:
+            st.warning("Floor plan could not be generated.")
     except Exception as e:
         st.error(f"Error generating floor plan: {e}")
-        # Fallback: show raw SVG with markdown
-        st.markdown(svg_markup, unsafe_allow_html=True)
-    
-    st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
+        import traceback
+        st.code(traceback.format_exc())
 
     # --- Room Breakdown Table ---
     st.subheader("Room Breakdown")
