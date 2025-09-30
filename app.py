@@ -26,16 +26,24 @@ if uploaded_file:
 
     # --- Floor Plan Visualization ---
     st.subheader("📐 Floor Plan Preview")
+    
+    # Debug: Check if the function exists
+    st.write(f"DEBUG: generate_floor_plan_svg function exists: {callable(generate_floor_plan_svg)}")
+    st.write(f"DEBUG: Number of rooms: {len(rooms_data.get('rooms', []))}")
+    
     try:
         svg_markup = generate_floor_plan_svg(rooms_data)
+        st.write(f"DEBUG: SVG markup length: {len(svg_markup) if svg_markup else 0}")
+        st.write(f"DEBUG: SVG starts with: {svg_markup[:100] if svg_markup else 'None'}")
+        
         if svg_markup:
             # Display using markdown with unsafe_allow_html
             st.markdown(svg_markup, unsafe_allow_html=True)
             st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
         else:
-            st.warning("Floor plan could not be generated.")
+            st.error("❌ Floor plan SVG is empty!")
     except Exception as e:
-        st.error(f"Error generating floor plan: {e}")
+        st.error(f"❌ Error generating floor plan: {e}")
         import traceback
         st.code(traceback.format_exc())
 
