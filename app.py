@@ -27,7 +27,17 @@ if uploaded_file:
     # --- Floor Plan Visualization ---
     st.subheader("📐 Floor Plan Preview")
     svg_markup = generate_floor_plan_svg(rooms_data)
-    st.markdown(svg_markup, unsafe_allow_html=True)
+    # Wrap in a responsive container to avoid clipping on smaller screens
+    st.markdown(
+        f"""
+        <div style="max-width: 100%; overflow-x: auto; border-radius: 8px; padding: 12px; background: #ffffff; border: 1px solid #e0e0e0;">
+          <div style="min-width: 1500px; margin: 0 auto;">
+            {svg_markup}
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
 
     # --- Room Breakdown Table ---
