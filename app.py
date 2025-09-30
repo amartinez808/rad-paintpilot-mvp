@@ -12,7 +12,9 @@ uploaded_file = st.file_uploader("Upload Floor Plan PDF", type=['pdf'])
 
 if uploaded_file:
     with st.spinner("🤖 AI analyzing drawings..."):
-        import time; time.sleep(1.5)
+        import time
+        time.sleep(1.5)
+        # Pass the file object - mock_room_extraction doesn't use it anyway
         rooms_data = mock_room_extraction(uploaded_file)
         results = process_takeoff(rooms_data)
 
@@ -20,9 +22,15 @@ if uploaded_file:
 
     # --- Floor Plan Visualization ---
     st.subheader("📐 Floor Plan Preview")
-    svg_markup = generate_floor_plan_svg(rooms_data)
-    # Use unsafe_allow_html=True to embed SVG string
-    st.markdown(svg_markup, unsafe_allow_html=True)
+    try:
+        svg_markup = generate_floor_plan_svg(rooms_data)
+        # Use components.html for better SVG rendering
+        st.components.v1.html(svg_markup, height=750, scrolling=False)
+    except Exception as e:
+        st.error(f"Error generating floor plan: {e}")
+        # Fallback: show raw SVG with markdown
+        st.markdown(svg_markup, unsafe_allow_html=True)
+    
     st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
 
     # --- Room Breakdown Table ---
@@ -51,6 +59,8 @@ if uploaded_file:
 
     # --- Export ---
     if st.button("📥 Generate Bid Package (Excel)"):
+        import os
+        os.makedirs("output", exist_ok=True)
         out_path = "output/bid.xlsx"
         generate_workbook(results, out_path)
         with open(out_path, "rb") as f:
