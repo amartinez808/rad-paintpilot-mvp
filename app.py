@@ -3,6 +3,7 @@ import pandas as pd
 from src.pdf_processor import mock_room_extraction
 from src.calculator import process_takeoff
 from src.excel_exporter import generate_workbook
+from src.floor_visualizer import generate_floor_plan_svg
 
 st.set_page_config(page_title="RAD PaintPilot MVP", page_icon="🎨")
 st.title("🎨 RAD PaintPilot - Pro Plan Demo")
@@ -17,6 +18,14 @@ if uploaded_file:
 
     st.success("✅ Analysis complete!")
 
+    # --- Floor Plan Visualization ---
+    st.subheader("📐 Floor Plan Preview")
+    svg_markup = generate_floor_plan_svg(rooms_data)
+    # Use unsafe_allow_html=True to embed SVG string
+    st.markdown(svg_markup, unsafe_allow_html=True)
+    st.caption("Pastel blue = Paint • Pastel green = Wallcovering • Hover rooms for details")
+
+    # --- Room Breakdown Table ---
     st.subheader("Room Breakdown")
     rows = []
     for r in results:
@@ -40,6 +49,7 @@ if uploaded_file:
         })
     st.dataframe(pd.DataFrame(rows), use_container_width=True)
 
+    # --- Export ---
     if st.button("📥 Generate Bid Package (Excel)"):
         out_path = "output/bid.xlsx"
         generate_workbook(results, out_path)
